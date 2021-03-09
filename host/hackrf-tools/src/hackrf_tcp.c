@@ -54,7 +54,6 @@ typedef int socklen_t;
 #endif
 
 static SOCKET s;
-int gains[6] = { 0, 8, 16, 24, 32, 40 };
 static pthread_t tcp_worker_thread;
 static pthread_t command_thread;
 static pthread_cond_t exit_cond;
@@ -292,19 +291,6 @@ static int set_tuner_if(hackrf_device *_dev, unsigned int p)
 */
 
 
-static int set_gain_by_index(hackrf_device *_dev, unsigned int index)
-{
-        int res = 0;
-        int count = 6;
-
-        if (count > 0 && (unsigned int)count > index) {
-                res = hackrf_set_vga_gain(_dev, gains[index]);
-                res = hackrf_set_lna_gain(_dev, gains[index]);
-        }
-
-        return res;
-}
-
 #ifdef _WIN32
 #define __attribute__(x)
 #pragma pack(push, 1)
@@ -318,12 +304,11 @@ struct command{
 #endif
 static void *command_worker(void *arg)
 {
-	int left, received, gain;
+	int left, received;
 	fd_set readfds;
 	struct command cmd={0, 0};
 	struct timeval tv= {1, 0};
 	int r = 0;
-	uint32_t tmp;
 
 	while(1) {
 		left=sizeof(cmd);
@@ -363,76 +348,6 @@ static void *command_worker(void *arg)
 			printf("set sample rate %d\n", ntohl(cmd.param));
 			hackrf_set_sample_rate(dev, ntohl(cmd.param));
 			break;
-		case 0x03:
-			printf("set amp mode %d\n", ntohl(cmd.param));
-			hackrf_set_amp_enable(dev, ntohl(cmd.param));
-			break;
-		case 0x04:
-			gain = (ntohl(cmd.param) / 10);
-			if (gain > 42) {
-				gain = 40;
-			}
-			if (gain < 1 || gain > 100) {
-				gain = 0;
-			}
-			printf("set lna gain %d\n", gain);
-			hackrf_set_lna_gain(dev, gain);
-			break;
-		case 0x05:
-			tmp = ntohl(cmd.param);
-			if (tmp == 99) {
-				printf("set freq correction (%d) -> set tuner amp off \n", ntohl(cmd.param));
-				set_tuner_amp(dev, 0);
-			}
-			else if (tmp == 100) {
-				printf("set freq correction (%d) -> set tuner amp on \n", ntohl(cmd.param));
-				set_tuner_amp(dev, 1);
-			}
-			else {
-				if (tmp > 62) {
-						tmp = 62;
-				}
-				if (tmp < 0) {
-						tmp = 0;
-				}
-				printf("set freq correction -> set vga gain %d\n", tmp);
-				set_tuner_gain(dev, 0, tmp);
-			}
-			//rtlsdr_set_freq_correction(dev, ntohl(cmd.param));
-			break;
-		case 0x06:
-			tmp = ntohl(cmd.param);
-			printf("[ignored] set if stage %d gain %d\n", tmp >> 16, (short)(tmp & 0xffff));
-			//rtlsdr_set_tuner_if_gain(dev, tmp >> 16, (short)(tmp & 0xffff));
-			break;
-		case 0x07:
-			printf("[ignored] set test mode %d\n", ntohl(cmd.param));
-			//rtlsdr_set_testmode(dev, ntohl(cmd.param));
-			break;
-		case 0x08:
-			printf("[ignored] set agc mode %d\n", ntohl(cmd.param));
-			//rtlsdr_set_agc_mode(dev, ntohl(cmd.param));
-			break;
-		case 0x09:
-			printf("[ignored] set direct sampling %d\n", ntohl(cmd.param));
-			//rtlsdr_set_direct_sampling(dev, ntohl(cmd.param));
-			break;
-		case 0x0a:
-			printf("[ignored] set offset tuning %d\n", ntohl(cmd.param));
-			//rtlsdr_set_offset_tuning(dev, ntohl(cmd.param));
-			break;
-		case 0x0b:
-			printf("[ignored] set rtl xtal %d\n", ntohl(cmd.param));
-			//rtlsdr_set_xtal_freq(dev, ntohl(cmd.param), 0);
-			break;
-		case 0x0c:
-			printf("[ignored] set tuner xtal %d\n", ntohl(cmd.param));
-			//rtlsdr_set_xtal_freq(dev, 0, ntohl(cmd.param));
-			break;
-		case 0x0d:
-			printf("set tuner gain by index %d\n", ntohl(cmd.param));
-			set_gain_by_index(dev, ntohl(cmd.param));
-			break;
 		/* HackRF TCP Exclusive */
 		case 0xb0:
 			printf("set tuner amp %d\n", ntohl(cmd.param));
@@ -451,6 +366,7 @@ static void *command_worker(void *arg)
 			//set_tuner_if(dev, ntohl(cmd.param));
 			break;
 		default:
+			printf("[ignored] command %x\n", cmd.cmd);
 			break;
 		}
 		cmd.cmd = 0xff;
