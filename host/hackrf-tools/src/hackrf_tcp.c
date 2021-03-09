@@ -85,7 +85,7 @@ static int do_exit = 0;
 
 void usage(void)
 {
-	printf("rtl_tcp, an I/Q spectrum server for RTL2832 based DVB-T receivers\n\n"
+	printf("hackrf_tcp, an I/Q spectrum server for HackRF, similar to rtl_tcp\n\n"
 		"Usage:\t[-a listen address]\n"
 		"\t[-p listen port (default: 1234)]\n"
 		"\t[-f frequency to tune to [Hz]]\n"
@@ -608,10 +608,10 @@ int main(int argc, char **argv)
 
 	while(1) {
 		printf("listening...\n");
-		printf("Use the device argument 'rtl_tcp=%s:%d' in OsmoSDR "
+		printf("Use the device argument 'hackrf_tcp=%s:%d' in OsmoSDR "
 		       "(gr-osmosdr) source\n"
 		       "to receive samples in GRC and control "
-		       "rtl_tcp parameters (frequency, gain, ...).\n",
+		       "hackrf_tcp parameters (frequency, gain, ...).\n",
 		       addr, port);
 		listen(listensocket,1);
 
