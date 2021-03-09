@@ -571,10 +571,10 @@ int main(int argc, char **argv)
 		 /* Enable automatic gain */
 		hackrf_set_lna_gain(dev,24);
 		hackrf_set_vga_gain(dev,24);
-		hackrf_set_amp_enable(dev,1);
+		//hackrf_set_amp_enable(dev,1);
 	} else {
 		/* Enable manual gain */
-		hackrf_set_amp_enable(dev,1);
+		//hackrf_set_amp_enable(dev,1);
 		hackrf_set_lna_gain(dev,gain);
 		hackrf_set_vga_gain(dev,gain);
 	}
