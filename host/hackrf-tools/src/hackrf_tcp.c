@@ -281,13 +281,15 @@ static int set_tuner_gain(hackrf_device *_dev, int g, unsigned int p)
         return res;
 }
 
+/*
 static int set_tuner_if(hackrf_device *_dev, unsigned int p)
 {
 	int res = 0;
+	// hackrf_set_if_freq does not exist in vanilla libhackrf?
 	res = hackrf_set_if_freq(_dev, p);
         return res;
 }
-
+*/
 
 
 static int set_gain_by_index(hackrf_device *_dev, unsigned int index)
@@ -445,8 +447,8 @@ static void *command_worker(void *arg)
 			set_tuner_gain(dev, 1, ntohl(cmd.param));
 			break;
 		case 0xb3:
-			printf("set intermediate freq %d\n", ntohl(cmd.param));
-			set_tuner_if(dev, ntohl(cmd.param));
+			printf("[ignored] set intermediate freq %d\n", ntohl(cmd.param));
+			//set_tuner_if(dev, ntohl(cmd.param));
 			break;
 		default:
 			break;
