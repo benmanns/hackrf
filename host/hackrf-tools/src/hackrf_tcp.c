@@ -309,6 +309,7 @@ static void *command_worker(void *arg)
 	struct command cmd={0, 0};
 	struct timeval tv= {1, 0};
 	int r = 0;
+	uint64_t freq;
 
 	while(1) {
 		left=sizeof(cmd);
@@ -341,8 +342,11 @@ static void *command_worker(void *arg)
 		}
 		switch(cmd.cmd) {
 		case 0x01:
-			printf("set freq %ld\n", (long)ntohl(cmd.param));
-			hackrf_set_freq(dev, (long)ntohl(cmd.param));
+			// Since cmd.param is 32 bits, this only allows
+			// setting frequencies up to about 4.3 GHz.
+			freq = ntohl(cmd.param);
+			printf("set freq %lu\n", freq);
+			hackrf_set_freq(dev, freq);
 			break;
 		case 0x02:
 			printf("set sample rate %d\n", ntohl(cmd.param));
@@ -364,6 +368,12 @@ static void *command_worker(void *arg)
 		case 0xb3:
 			printf("[ignored] set intermediate freq %d\n", ntohl(cmd.param));
 			//set_tuner_if(dev, ntohl(cmd.param));
+			break;
+		case 0xb4:
+			// Use for setting frequencies above 4.3 GHz.
+			freq = ((uint64_t) ntohl(cmd.param)) + 0x100000000;
+			printf("set freq %lu\n", freq);
+			hackrf_set_freq(dev, freq);
 			break;
 		default:
 			printf("[ignored] command %x\n", cmd.cmd);
