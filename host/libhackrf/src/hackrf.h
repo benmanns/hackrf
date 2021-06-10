@@ -105,6 +105,13 @@ enum sweep_style {
 	INTERLEAVED = 1,
 };
 
+enum hackrf_clock_conv_filter {
+	HACKRF_CLOCK_CONV_FILTER_1200_MHZ = 0,
+	HACKRF_CLOCK_CONV_FILTER_500_MHZ = 1,
+	HACKRF_CLOCK_CONV_FILTER_160_MHZ = 2,
+	HACKRF_CLOCK_CONV_FILTER_50_MHZ = 3,
+};
+
 typedef struct hackrf_device hackrf_device;
 
 typedef struct {
@@ -260,6 +267,10 @@ extern ADDAPI int ADDCALL hackrf_cpld_checksum(hackrf_device* device,
 
 extern ADDAPI int ADDCALL hackrf_set_ui_enable(hackrf_device* device, const uint8_t value);
 extern ADDAPI int ADDCALL hackrf_start_rx_sweep(hackrf_device* device, hackrf_sample_block_cb_fn callback, void* rx_ctx);
+
+extern ADDAPI int ADDCALL hackrf_set_clock_conv_clkin_enable(hackrf_device* device, const uint8_t value);
+extern ADDAPI int ADDCALL hackrf_set_clock_conv_aux_enable(hackrf_device* device, const uint8_t value);
+extern ADDAPI int ADDCALL hackrf_set_clock_conv_filter(hackrf_device* device, enum hackrf_clock_conv_filter value);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

@@ -231,6 +231,9 @@ static void usage() {
 	printf("\t-r, --read <clock_num>: read settings for clock_num\n");
 	printf("\t-a, --all: read settings for all clocks\n");
 	printf("\t-o, --clkout <clkout_enable>: enable/disable CLKOUT\n");
+	printf("\t-i, --clkin <clkin_enable>: enable/disable CLKIN (hackrf-clock-conv)\n");
+	printf("\t-f, --clkin-filt <bw>: set CLKIN filter BW in MHz\n");
+	printf("\t                       valid values are 1200, 500, 160, 50\n");
 	printf("\t-d, --device <serial_number>: Serial number of desired HackRF.\n");
 	printf("\nExamples:\n");
 	printf("\thackrf_clock -r 3 : prints settings for CLKOUT\n");
@@ -241,6 +244,8 @@ static struct option long_options[] = {
 	{ "read", required_argument, 0, 'r' },
 	{ "all", no_argument, 0, 'a' },
 	{ "clkout", required_argument, 0, 'o' },
+	{ "clkin", required_argument, 0, 'i' },
+	{ "clkin-filt", required_argument, 0, 'f' },
 	{ "device", required_argument, 0, 'd' },
 	{ 0, 0, 0, 0 },
 };
@@ -251,7 +256,11 @@ int main(int argc, char** argv) {
 	bool read = false;
 	uint8_t clock = CLOCK_UNDEFINED;
 	bool clkout = false;
+	bool clkin = false;
+	bool clkin_filt = false;
 	uint8_t clkout_enable;
+	uint8_t clkin_enable;
+	int clkin_filt_bw;
 	const char* serial_number = NULL;
 
 	int result = hackrf_init();
@@ -260,7 +269,7 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	while( (opt = getopt_long(argc, argv, "r:ao:d:h?", long_options, &option_index)) != EOF ) {
+	while( (opt = getopt_long(argc, argv, "r:ao:d:h?i:f:", long_options, &option_index)) != EOF ) {
 		switch( opt ) {
 		case 'r':
 			read = true;
@@ -275,7 +284,14 @@ int main(int argc, char** argv) {
 			clkout = true;
 			result = parse_int(optarg, &clkout_enable);
 			break;
-
+		case 'i':
+			clkin = true;
+			result = parse_int(optarg, &clkin_enable);
+			break;
+		case 'f':
+			clkin_filt = true;
+			clkin_filt_bw = atoi(optarg);
+			break;
 		case 'd':
 			serial_number = optarg;
 			break;
@@ -297,8 +313,8 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if(!clkout && !read) {
-		fprintf(stderr, "Either read or enable CLKOUT option must be specified.\n");
+	if(!clkout && !read && !clkin && !clkin_filt) {
+		fprintf(stderr, "Either read, enable CLKOUT or CLKIN option must be specified.\n");
 		usage();
 		return EXIT_FAILURE;
 	}
@@ -313,6 +329,39 @@ int main(int argc, char** argv) {
 		result = hackrf_set_clkout_enable(device, clkout_enable);
 		if(result) {
 			printf("hackrf_set_clkout_enable() failed: %s (%d)\n", hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
+	}
+	if(clkin) {
+		result = hackrf_set_clock_conv_clkin_enable(device, clkin_enable);
+		if(result) {
+			printf("hackrf_set_clock_conv_clkin_enable() failed: %s (%d)\n", hackrf_error_name(result), result);
+			return EXIT_FAILURE;
+		}
+	}
+	if(clkin_filt) {
+		enum hackrf_clock_conv_filter filter;
+		switch(clkin_filt_bw) {
+			case 1200:
+				filter = HACKRF_CLOCK_CONV_FILTER_1200_MHZ;
+				break;
+			case 500:
+				filter = HACKRF_CLOCK_CONV_FILTER_500_MHZ;
+				break;
+			case 160:
+				filter = HACKRF_CLOCK_CONV_FILTER_160_MHZ;
+				break;
+			case 50:
+				filter = HACKRF_CLOCK_CONV_FILTER_50_MHZ;
+				break;
+			default:
+				printf("invalid setting for the clock converter filter bandwidth!\n");
+				return EXIT_FAILURE;
+		}
+
+		result = hackrf_set_clock_conv_filter(device, filter);
+		if(result) {
+			printf("hackrf_set_clock_conv_filter() failed: %s (%d)\n", hackrf_error_name(result), result);
 			return EXIT_FAILURE;
 		}
 	}
