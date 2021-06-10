@@ -41,6 +41,7 @@ extern "C"
 #include "w25q80bv.h"
 #include "sgpio.h"
 #include "rf_path.h"
+#include "clock_conv.h"
 #include "cpld_jtag.h"
 
 /* hardware identification number */
@@ -285,6 +286,7 @@ extern mixer_driver_t mixer;
 extern w25q80bv_driver_t spi_flash;
 extern sgpio_config_t sgpio_config;
 extern rf_path_t rf_path;
+extern clock_conv_t clock_conv;
 extern jtag_t jtag_cpld;
 extern i2c_bus_t i2c0;
 

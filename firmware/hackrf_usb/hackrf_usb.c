@@ -47,6 +47,7 @@
 #include "usb_api_sweep.h"
 #include "usb_api_transceiver.h"
 #include "usb_api_ui.h"
+#include "usb_api_clock_conv.h"
 #include "usb_bulk_buffer.h"
 #include "cpld_xc2c.h"
 #include "portapack.h"
@@ -109,6 +110,10 @@ static usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
 #endif
 	usb_vendor_request_set_ui_enable,
+
+	usb_vendor_request_set_clock_conv_clkin_enable,
+	usb_vendor_request_set_clock_conv_aux_enable,
+	usb_vendor_request_set_clock_conv_filter,
 };
 
 static const uint32_t vendor_request_handler_count =

@@ -136,6 +136,14 @@ static struct gpio_t gpio_cpld_pp_tdo		= GPIO(1,  8);
 static struct gpio_t gpio_hw_sync_enable = GPIO(5,12);
 static struct gpio_t gpio_rx_q_invert 		= GPIO(0, 13);
 
+/* HackRF clock converter */
+#ifdef HACKRF_ONE
+static struct gpio_t gpio_sd1				= GPIO(3, 13);
+static struct gpio_t gpio_sd2				= GPIO(3, 12);
+static struct gpio_t gpio_filta				= GPIO(3, 8);
+static struct gpio_t gpio_filtb				= GPIO(3, 11);
+#endif
+
 i2c_bus_t i2c0 = {
 	.obj = (void*)I2C0_BASE,
 	.start = i2c_lpc_start,
@@ -274,6 +282,15 @@ rf_path_t rf_path = {
 	.gpio_rx_lna = &gpio_rx_lna,
 #endif
 };
+
+#ifdef HACKRF_ONE
+clock_conv_t clock_conv = {
+	.gpio_sd1 = &gpio_sd1,
+	.gpio_sd2 = &gpio_sd2,
+	.gpio_filta = &gpio_filta,
+	.gpio_filtb = &gpio_filtb,
+};
+#endif
 
 jtag_gpio_t jtag_gpio_cpld = {
 	.gpio_tms = &gpio_cpld_tms,
@@ -845,7 +862,10 @@ void pin_setup(void) {
 	mixer_bus_setup(&mixer);
 
 	rf_path_pin_setup(&rf_path);
-	
+#ifdef HACKRF_ONE
+	clock_conv_pin_setup(&clock_conv);
+#endif
+
 	/* Configure external clock in */
 	scu_pinmux(SCU_PINMUX_GP_CLKIN, SCU_CLK_IN | SCU_CONF_FUNCTION1);
 
