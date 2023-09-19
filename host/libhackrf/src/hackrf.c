@@ -105,6 +105,9 @@ typedef enum {
 	HACKRF_VENDOR_REQUEST_SUPPORTED_PLATFORM_READ = 46,
 	HACKRF_VENDOR_REQUEST_SET_LEDS = 47,
 	HACKRF_VENDOR_REQUEST_SET_USER_BIAS_T_OPTS = 48,
+	HACKRF_VENDOR_REQUEST_SET_CLOCK_CONV_CLKIN_ENABLE = 49,
+	HACKRF_VENDOR_REQUEST_SET_CLOCK_CONV_AUX_ENABLE = 50,
+	HACKRF_VENDOR_REQUEST_SET_CLOCK_CONV_FILTER = 51,
 } hackrf_vendor_request;
 
 #define USB_CONFIG_STANDARD 0x1
@@ -3009,6 +3012,75 @@ int ADDCALL hackrf_set_user_bias_t_opts(
 		0);
 
 	if (result != 0) {
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_clock_conv_clkin_enable(hackrf_device* device, const uint8_t value)
+{
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_CLOCK_CONV_CLKIN_ENABLE,
+		value,
+		0,
+		NULL,
+		0,
+		0
+	);
+
+	if (result != 0)
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_clock_conv_aux_enable(hackrf_device* device, const uint8_t value)
+{
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_CLOCK_CONV_AUX_ENABLE,
+		value,
+		0,
+		NULL,
+		0,
+		0
+	);
+
+	if (result != 0)
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	} else {
+		return HACKRF_SUCCESS;
+	}
+}
+
+int ADDCALL hackrf_set_clock_conv_filter(hackrf_device* device, enum hackrf_clock_conv_filter value)
+{
+	int result;
+	result = libusb_control_transfer(
+		device->usb_device,
+		LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE,
+		HACKRF_VENDOR_REQUEST_SET_CLOCK_CONV_FILTER,
+		value,
+		0,
+		NULL,
+		0,
+		0
+	);
+
+	if (result != 0)
+	{
 		last_libusb_error = result;
 		return HACKRF_ERROR_LIBUSB;
 	} else {

@@ -48,6 +48,7 @@ set(SRC_M4
 	usb_api_spiflash.c
 	usb_api_transceiver.c
 	usb_api_operacake.c
+	usb_api_clock_conv.c
 	usb_api_sweep.c
 	usb_api_ui.c
 	"${PATH_HACKRF_FIRMWARE_COMMON}/usb_queue.c"
@@ -71,6 +72,7 @@ if(BOARD STREQUAL "HACKRF_ONE")
 		${SRC_M4}
 		"${PATH_HACKRF_FIRMWARE_COMMON}/portapack.c"
 		"${PATH_HACKRF_FIRMWARE_COMMON}/ui_portapack.c"
+		"${PATH_HACKRF_FIRMWARE_COMMON}/clock_conv.c"
 	)
 endif()
 

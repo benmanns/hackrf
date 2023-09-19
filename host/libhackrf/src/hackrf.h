@@ -843,6 +843,13 @@ enum sweep_style {
 	INTERLEAVED = 1,
 };
 
+enum hackrf_clock_conv_filter {
+	HACKRF_CLOCK_CONV_FILTER_1200_MHZ = 0,
+	HACKRF_CLOCK_CONV_FILTER_500_MHZ = 1,
+	HACKRF_CLOCK_CONV_FILTER_160_MHZ = 2,
+	HACKRF_CLOCK_CONV_FILTER_50_MHZ = 3,
+};
+
 /**
  * Opaque struct for hackrf device info. Object can be created via @ref hackrf_open, @ref hackrf_device_list_open or @ref hackrf_open_by_serial and be destroyed via @ref hackrf_close
  * @ingroup device
@@ -2091,6 +2098,10 @@ extern ADDAPI int ADDCALL hackrf_set_leds(hackrf_device* device, const uint8_t s
 extern ADDAPI int ADDCALL hackrf_set_user_bias_t_opts(
 	hackrf_device* device,
 	hackrf_bias_t_user_settting_req* req);
+
+extern ADDAPI int ADDCALL hackrf_set_clock_conv_clkin_enable(hackrf_device* device, const uint8_t value);
+extern ADDAPI int ADDCALL hackrf_set_clock_conv_aux_enable(hackrf_device* device, const uint8_t value);
+extern ADDAPI int ADDCALL hackrf_set_clock_conv_filter(hackrf_device* device, enum hackrf_clock_conv_filter value);
 
 #ifdef __cplusplus
 } // __cplusplus defined.

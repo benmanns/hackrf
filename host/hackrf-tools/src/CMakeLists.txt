@@ -38,6 +38,8 @@ SET(TOOLS
 	hackrf_sweep
 	hackrf_operacake
 	hackrf_biast
+	hackrf_tcp
+	hackrf_fm
 )
 
 if(MSVC)
@@ -58,6 +60,8 @@ endif()
 
 if(MSVC)
 	LIST(APPEND TOOLS_LINK_LIBS libgetopt_static)
+else()
+	LIST(APPEND TOOLS_LINK_LIBS m)
 endif()
 
 foreach(tool ${TOOLS})
